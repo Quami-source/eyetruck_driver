@@ -1,5 +1,7 @@
 import 'package:eyetruck_driver/constants/colors.dart';
+import 'package:eyetruck_driver/constants/widgets/button.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class SignUpPersonal extends StatefulWidget {
   const SignUpPersonal({super.key});
@@ -11,6 +13,16 @@ class SignUpPersonal extends StatefulWidget {
 class _SignUpPersonalState extends State<SignUpPersonal> {
   GlobalKey tabControllerKey = GlobalKey();
   int currentTab = 1;
+
+  String? _selectedGender;
+  TextEditingController firstName = TextEditingController();
+  TextEditingController lastName = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController phone = TextEditingController();
+  TextEditingController pwd = TextEditingController();
+  TextEditingController pwdConfirm = TextEditingController();
+
+  PhoneNumber number = PhoneNumber(isoCode: 'GH');
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +47,7 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
             children: [
               SizedBox(
                   width: MediaQuery.of(context).size.width,
-                  height: 350,
+                  height: MediaQuery.of(context).size.height,
                   child: DefaultTabController(
                     animationDuration: const Duration(milliseconds: 500),
                     length: 2,
@@ -68,27 +80,105 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                             SingleChildScrollView(
                               scrollDirection: Axis.vertical,
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "Enter Bio Information",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  TextField(
+                                    controller: firstName,
+                                    decoration: const InputDecoration(
+                                        hintText: 'Enter your first name',
+                                        labelText: 'First name',
+                                        labelStyle: TextStyle(fontSize: 14)),
                                   ),
-                                  const SizedBox(height: 10),
+                                  TextField(
+                                    controller: lastName,
+                                    decoration: const InputDecoration(
+                                        hintText: 'Enter your last name',
+                                        labelStyle: TextStyle(fontSize: 14),
+                                        labelText: 'Last name'),
+                                  ),
+                                  TextField(
+                                    controller: email,
+                                    decoration: const InputDecoration(
+                                        hintText: 'Enter your email',
+                                        labelStyle: TextStyle(fontSize: 14),
+                                        labelText: 'Email'),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Align(
+                                    widthFactor:
+                                        MediaQuery.of(context).size.width,
+                                    alignment: Alignment.centerLeft,
+                                    child: const Text(
+                                      'Gender',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: RadioListTile<String>(
+                                          title: const Text('Male'),
+                                          value: 'M',
+                                          groupValue: _selectedGender,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _selectedGender = value;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: RadioListTile(
+                                          title: const Text('Female'),
+                                          value: 'F',
+                                          groupValue: _selectedGender,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _selectedGender = value;
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  InternationalPhoneNumberInput(
+                                    textFieldController: phone,
+                                    hintText: 'Enter your phone number',
+                                    initialValue: number,
+                                    formatInput: true,
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                            signed: true, decimal: true),
+                                    onInputChanged: (e) {},
+                                  ),
+                                  TextField(
+                                    controller: pwd,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                        hintText: 'Enter your password',
+                                        labelStyle: TextStyle(fontSize: 14),
+                                        labelText: 'Password'),
+                                  ),
+                                  TextField(
+                                    controller: pwdConfirm,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                        hintText: 'Enter your password',
+                                        labelStyle: TextStyle(fontSize: 14),
+                                        labelText: 'Confirm password'),
+                                  ),
                                   Container(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: const Text('Text'),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: const Text('Text'),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: const Text('Text'),
-                                  ),
-                                  const SizedBox(height: 20),
+                                    margin: const EdgeInsets.only(top: 80),
+                                    child: primaryButton(
+                                        text: "Continue",
+                                        onPressed: () {
+                                          setState(() {
+                                            currentTab = 1;
+                                          });
+                                        }),
+                                  )
                                 ],
                               ),
                             ),
