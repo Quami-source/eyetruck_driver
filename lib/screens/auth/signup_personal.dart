@@ -14,6 +14,7 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
   GlobalKey tabControllerKey = GlobalKey();
   int currentTab = 1;
 
+  //personal
   String? _selectedGender;
   TextEditingController firstName = TextEditingController();
   TextEditingController lastName = TextEditingController();
@@ -23,6 +24,15 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
   TextEditingController pwdConfirm = TextEditingController();
 
   PhoneNumber number = PhoneNumber(isoCode: 'GH');
+
+  //documents
+  TextEditingController partnerCode = TextEditingController();
+  TextEditingController lisence = TextEditingController();
+  TextEditingController issuedAt = TextEditingController();
+  TextEditingController expiredAt = TextEditingController();
+
+  TextEditingController imgFront = TextEditingController();
+  TextEditingController imgBack = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -187,25 +197,29 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "Enter Bio Information",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  TextField(
+                                    controller: partnerCode,
+                                    decoration: const InputDecoration(
+                                        hintText: 'Partner code',
+                                        labelText:
+                                            'Enter your associated partners code',
+                                        labelStyle: TextStyle(fontSize: 14)),
                                   ),
-                                  const SizedBox(height: 10),
+                                  TextField(
+                                    controller: partnerCode,
+                                    decoration: const InputDecoration(
+                                        hintText: "Driver's lisence number",
+                                        labelText: 'Enter your license number',
+                                        labelStyle: TextStyle(fontSize: 14)),
+                                  ),
+                                  DatePickerDialog(
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime.now()),
                                   Container(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: const Text('Text'),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: const Text('Text'),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: const Text('Text'),
-                                  ),
-                                  const SizedBox(height: 20),
+                                    margin: const EdgeInsets.only(top: 80),
+                                    child: primaryButton(
+                                        text: "Submit", onPressed: () {}),
+                                  )
                                 ],
                               ),
                             ),
