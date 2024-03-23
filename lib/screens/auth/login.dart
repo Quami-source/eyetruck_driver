@@ -1,6 +1,8 @@
 import 'package:eyetruck_driver/constants/widgets/button.dart';
 import 'package:eyetruck_driver/screens/auth/signup_personal.dart';
+import 'package:eyetruck_driver/screens/home/home.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -10,6 +12,81 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  bool isLoginLoading = false;
+
+  Future _login(email, password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if (email.isEmpty || password.isEmpty) {
+      // Display error message if email or password is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Center(child: Text("Enter Email and Password")),
+          width: MediaQuery.of(context).size.width * 0.9,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return false;
+    }
+
+    setState(() {
+      isLoginLoading = true;
+    });
+
+    Future.delayed(const Duration(seconds: 3), () async {
+      try {
+        if (email == 'admin' && password == 'pass') {
+          debugPrint(email);
+          debugPrint(password);
+
+          await prefs.setString('token', 'user token');
+          await prefs.setString('username', "Admin");
+          await prefs.setBool('verified', true);
+
+          setState(() {
+            isLoginLoading = false;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Center(
+                child: Text("Login Successful"),
+              ),
+              width: MediaQuery.of(context).size.width * 0.9,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Home(),
+            ),
+            (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Center(
+                child: Text("Login failed. Try again later"),
+              ),
+              width: MediaQuery.of(context).size.width * 0.9,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } catch (e) {
+        setState(() {
+          isLoginLoading = false;
+        });
+        return false;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,15 +108,17 @@ class _LoginState extends State<Login> {
                 ),
                 Container(
                   padding: const EdgeInsets.only(top: 80),
-                  child: const TextField(
-                    decoration: InputDecoration(
+                  child: TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
                         hintText: 'Enter your email', labelText: 'Email'),
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.only(top: 24),
-                  child: const TextField(
-                    decoration: InputDecoration(
+                  child: TextField(
+                    controller: passwordController,
+                    decoration: const InputDecoration(
                         hintText: 'Enter your password', labelText: 'Password'),
                     obscureText: true,
                   ),
@@ -60,8 +139,14 @@ class _LoginState extends State<Login> {
                 Container(
                     margin: const EdgeInsets.only(top: 24, bottom: 24),
                     child: Center(
-                      child: primaryButton(text: "Login", onPressed: () {}),
-                    )),
+                        child: isLoginLoading == false
+                            ? primaryButton(
+                                text: "Login",
+                                onPressed: () async {
+                                  await _login(emailController.text,
+                                      passwordController.text);
+                                })
+                            : const CircularProgressIndicator())),
                 const Center(
                   child: Text(
                     'or',
