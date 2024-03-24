@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
@@ -14,8 +17,11 @@ class _WelcomeState extends State<Welcome> {
   String? userName;
   bool? isVerified;
   String? _currentPlace;
+  Position? _currentPosition;
 
-  final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
+  IO.Socket? socket;
+  final _socket = IO.io('http://192.168.0.152:8080',
+      IO.OptionBuilder().setTransports(['websocket']).build());
 
   @override
   void initState() {
@@ -23,6 +29,9 @@ class _WelcomeState extends State<Welcome> {
     getStoredItems();
     _getCurrentLocation();
     _getLocationChanges();
+    //_getIoConnection();
+
+    _socket.onConnect((data) => debugPrint('Connected to socket $data'));
   }
 
   Future<void> getStoredItems() async {
@@ -77,6 +86,7 @@ class _WelcomeState extends State<Welcome> {
 
           setState(() {
             _currentPlace = placemarks[0].name;
+            _currentPosition = position;
           });
         }
       }
@@ -101,7 +111,24 @@ class _WelcomeState extends State<Welcome> {
       setState(() {
         _currentPlace = placemarks[0].street;
       });
+      //send location to ws
+      _sendLocationDate();
     });
+  }
+
+  void _sendLocationDate() {
+    if (_currentPosition != null) {
+      Map<dynamic, dynamic> jsonData = {
+        'id': 1,
+        'lat': _currentPosition!.latitude,
+        'lng': _currentPosition!.longitude,
+        'spd': _currentPosition!.speed,
+        'hdg': _currentPosition!.heading
+      };
+
+      String jsonString = json.encode(jsonData);
+      _socket.emit('testLocation', jsonString);
+    }
   }
 
   @override
