@@ -68,6 +68,9 @@ class _LoginState extends State<Login> {
             (route) => false,
           );
         } else {
+          setState(() {
+            isLoginLoading = false;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Center(

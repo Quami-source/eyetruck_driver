@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+// import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
@@ -18,10 +18,9 @@ class _WelcomeState extends State<Welcome> {
   bool? isVerified;
   String? _currentPlace;
   Position? _currentPosition;
+  //late Timer _timer;
 
   IO.Socket? socket;
-  final _socket = IO.io('http://192.168.0.152:8080',
-      IO.OptionBuilder().setTransports(['websocket']).build());
 
   @override
   void initState() {
@@ -29,9 +28,13 @@ class _WelcomeState extends State<Welcome> {
     getStoredItems();
     _getCurrentLocation();
     _getLocationChanges();
+    //_sendLocationDate(_currentPlace);
     //_getIoConnection();
 
-    _socket.onConnect((data) => debugPrint('Connected to socket $data'));
+    socket = IO.io('http://192.168.0.152:8080',
+        IO.OptionBuilder().setTransports(['websocket']).build());
+
+    socket!.on("connect", (data) => debugPrint('Mobile is connect to socket'));
   }
 
   Future<void> getStoredItems() async {
@@ -56,11 +59,6 @@ class _WelcomeState extends State<Welcome> {
         if (permission == LocationPermission.denied) {
           permission = await Geolocator.requestPermission();
           if (permission == LocationPermission.denied) {
-            // Permissions are denied, next time you could try
-            // requesting permissions again (this is also where
-            // Android's shouldShowRequestPermissionRationale
-            // returned true. According to Android guidelines
-            // your App should show an explanatory UI now.
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Center(
@@ -83,6 +81,20 @@ class _WelcomeState extends State<Welcome> {
               position.latitude, position.longitude);
 
           debugPrint(placemarks[0].name);
+
+          Map<dynamic, dynamic> jsonData = {
+            'id': 1,
+            'name': 'Mobile user',
+            'place': placemarks[0].street,
+            'lat': _currentPosition!.latitude,
+            'lng': _currentPosition!.longitude,
+            'spd': _currentPosition!.speed,
+            'hdg': _currentPosition!.heading
+          };
+
+          String jsonString = json.encode(jsonData);
+          debugPrint(jsonString);
+          socket!.emit('testLocation', jsonString);
 
           setState(() {
             _currentPlace = placemarks[0].name;
@@ -108,18 +120,13 @@ class _WelcomeState extends State<Welcome> {
       debugPrint('New position: ${placemarks[0].name.toString()}');
       debugPrint('Street name: ${placemarks[0].street}');
 
-      setState(() {
-        _currentPlace = placemarks[0].street;
-      });
       //send location to ws
-      _sendLocationDate();
-    });
-  }
+      // _sendLocationDate(placemarks[0].street);
 
-  void _sendLocationDate() {
-    if (_currentPosition != null) {
       Map<dynamic, dynamic> jsonData = {
         'id': 1,
+        'name': 'Mobile user',
+        'place': placemarks[0].street,
         'lat': _currentPosition!.latitude,
         'lng': _currentPosition!.longitude,
         'spd': _currentPosition!.speed,
@@ -127,9 +134,31 @@ class _WelcomeState extends State<Welcome> {
       };
 
       String jsonString = json.encode(jsonData);
-      _socket.emit('testLocation', jsonString);
-    }
+      debugPrint(jsonString);
+      socket!.emit('testLocation', jsonString);
+
+      setState(() {
+        _currentPlace = placemarks[0].street;
+      });
+    });
   }
+
+  // void _sendLocationDate(String? place) {
+  //   if (_currentPosition != null) {
+  //     Map<dynamic, dynamic> jsonData = {
+  //       'id': 1,
+  //       'name': 'Mobile user',
+  //       'place': place ?? place,
+  //       'lat': _currentPosition!.latitude,
+  //       'lng': _currentPosition!.longitude,
+  //       'spd': _currentPosition!.speed,
+  //       'hdg': _currentPosition!.heading
+  //     };
+
+  //     String jsonString = json.encode(jsonData);
+  //     _socket.emit('testLocation', jsonString);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -245,7 +274,24 @@ class _WelcomeState extends State<Welcome> {
                   ),
                 ),
               ],
-            )
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  Map<dynamic, dynamic> jsonData = {
+                    'id': 1,
+                    'name': 'Mobile user',
+                    'place': "Madina",
+                    'lat': _currentPosition!.latitude,
+                    'lng': _currentPosition!.longitude,
+                    'spd': _currentPosition!.speed,
+                    'hdg': _currentPosition!.heading
+                  };
+
+                  String jsonString = json.encode(jsonData);
+
+                  socket!.emit('testLocation', jsonString);
+                },
+                child: const Text('Send'))
           ],
         ),
       )),
