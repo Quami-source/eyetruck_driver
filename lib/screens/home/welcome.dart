@@ -19,6 +19,8 @@ class _WelcomeState extends State<Welcome> {
   String? _currentPlace;
   Position? _currentPosition;
   late Timer _timer;
+  String? userImg;
+  String? uid;
 
   IO.Socket? socket;
 
@@ -44,130 +46,61 @@ class _WelcomeState extends State<Welcome> {
     setState(() {
       userName = prefs.getString('username');
       isVerified = prefs.getBool('verified');
+      userImg = prefs.getString('uimg');
+      uid = prefs.getString('uid');
     });
   }
 
-  // Future<void> _getCurrentLocation() async {
-  //   bool serviceEnabled;
-  //   LocationPermission permission;
-
-  //   try {
-  //     serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  //     if (!serviceEnabled) {
-  //       debugPrint('Location services are disabled.');
-  //     } else {
-  //       permission = await Geolocator.checkPermission();
-  //       if (permission == LocationPermission.denied) {
-  //         permission = await Geolocator.requestPermission();
-  //         if (permission == LocationPermission.denied) {
-  //           ScaffoldMessenger.of(context).showSnackBar(
-  //             SnackBar(
-  //               content: const Center(
-  //                 child: Text(
-  //                     "Location permission is required for the app to run smoothly"),
-  //               ),
-  //               width: MediaQuery.of(context).size.width * 0.9,
-  //               behavior: SnackBarBehavior.floating,
-  //             ),
-  //           );
-  //           return Future.error('Location permissions are denied');
-  //         }
-  //       } else {
-  //         Position position = await Geolocator.getCurrentPosition(
-  //           desiredAccuracy: LocationAccuracy.high,
-  //         );
-  //         debugPrint(position.toString());
-
-  //         List<Placemark> placemarks = await placemarkFromCoordinates(
-  //             position.latitude, position.longitude);
-
-  //         debugPrint(placemarks[0].name);
-
-  //         Map<dynamic, dynamic> jsonData = {
-  //           'id': 1,
-  //           'name': 'Mobile user',
-  //           'place': placemarks[0].street,
-  //           'lat': _currentPosition!.latitude,
-  //           'lng': _currentPosition!.longitude,
-  //           'spd': _currentPosition!.speed,
-  //           'hdg': _currentPosition!.heading
-  //         };
-
-  //         String jsonString = json.encode(jsonData);
-  //         debugPrint(jsonString);
-  //         socket!.emit('testLocation', jsonString);
-
-  //         setState(() {
-  //           _currentPlace = placemarks[0].name;
-  //           _currentPosition = position;
-  //         });
-  //       }
-  //     }
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //   }
-  // }
-
-  // void _getLocationChanges() {
-  //   Geolocator.getPositionStream(
-  //           locationSettings: const LocationSettings(
-  //               //timeLimit: Duration(seconds: 3),
-  //               distanceFilter: 10,
-  //               accuracy: LocationAccuracy.bestForNavigation))
-  //       .listen((Position position) async {
-  //     List<Placemark> placemarks =
-  //         await placemarkFromCoordinates(position.latitude, position.longitude);
-
-  //     debugPrint('New position: ${placemarks[0].name.toString()}');
-  //     debugPrint('Street name: ${placemarks[0].street}');
-
-  //     //send location to ws
-  //     // _sendLocationDate(placemarks[0].street);
-
-  //     Map<dynamic, dynamic> jsonData = {
-  //       'id': 1,
-  //       'name': 'Mobile user',
-  //       'place': placemarks[0].street,
-  //       'lat': _currentPosition!.latitude,
-  //       'lng': _currentPosition!.longitude,
-  //       'spd': _currentPosition!.speed,
-  //       'hdg': _currentPosition!.heading
-  //     };
-
-  //     String jsonString = json.encode(jsonData);
-  //     debugPrint(jsonString);
-  //     socket!.emit('testLocation', jsonString);
-
-  //     setState(() {
-  //       _currentPlace = placemarks[0].street;
-  //     });
-  //   });
-  // }
-
   void _startLocationUpdates() {
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      bool serviceEnabled;
+      LocationPermission permission;
       try {
-        _currentPosition = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.bestForNavigation,
-        );
+        serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          debugPrint('Location services are disabled.');
+        } else {
+          permission = await Geolocator.checkPermission();
+          if (permission == LocationPermission.denied) {
+            permission = await Geolocator.requestPermission();
+            if (permission == LocationPermission.denied) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Center(
+                    child: Text(
+                        "Location permission is required for the app to run smoothly"),
+                  ),
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              return Future.error('Location permissions are denied');
+            }
+          } else {
+            _currentPosition = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.bestForNavigation,
+            );
 
-        if (_currentPosition != null) {
-          debugPrint('New position: ${_currentPosition!.toString()}');
-          debugPrint('Latitude: ${_currentPosition!.latitude}');
-          debugPrint('Longitude: ${_currentPosition!.longitude}');
+            if (_currentPosition != null) {
+              debugPrint('New position: ${_currentPosition!.toString()}');
+              debugPrint('Latitude: ${_currentPosition!.latitude}');
+              debugPrint('Longitude: ${_currentPosition!.longitude}');
 
-          // Reverse geocoding
-          List<Placemark> placemarks = await placemarkFromCoordinates(
-            _currentPosition!.latitude,
-            _currentPosition!.longitude,
-          );
+              // Reverse geocoding
+              List<Placemark> placemarks = await placemarkFromCoordinates(
+                _currentPosition!.latitude,
+                _currentPosition!.longitude,
+              );
 
-          setState(() {
-            _currentPlace = placemarks.isNotEmpty ? placemarks[0].street : null;
-          });
+              setState(() {
+                _currentPlace =
+                    placemarks.isNotEmpty ? placemarks[0].street : null;
+              });
 
-          // Send location data to server
-          _sendLocationData();
+              // Send location data to server
+              _sendLocationData();
+            }
+          }
         }
       } catch (e) {
         debugPrint('Error getting location: $e');
@@ -178,8 +111,8 @@ class _WelcomeState extends State<Welcome> {
   void _sendLocationData() {
     if (_currentPosition != null) {
       Map<String, dynamic> jsonData = {
-        'id': 1,
-        'name': 'Mobile user',
+        'id': uid,
+        'name': userName,
         'place': _currentPlace,
         'lat': _currentPosition!.latitude,
         'lng': _currentPosition!.longitude,
@@ -192,23 +125,6 @@ class _WelcomeState extends State<Welcome> {
       socket!.emit('testLocation', jsonString);
     }
   }
-
-  // void _sendLocationDate(String? place) {
-  //   if (_currentPosition != null) {
-  //     Map<dynamic, dynamic> jsonData = {
-  //       'id': 1,
-  //       'name': 'Mobile user',
-  //       'place': place ?? place,
-  //       'lat': _currentPosition!.latitude,
-  //       'lng': _currentPosition!.longitude,
-  //       'spd': _currentPosition!.speed,
-  //       'hdg': _currentPosition!.heading
-  //     };
-
-  //     String jsonString = json.encode(jsonData);
-  //     _socket.emit('testLocation', jsonString);
-  //   }
-  // }
 
   @override
   void dispose() {
@@ -239,13 +155,26 @@ class _WelcomeState extends State<Welcome> {
                       Row(
                         children: [
                           ClipOval(
-                            child: Image.network(
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                              'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                            ),
-                          ),
+                              child: Image.network(
+                            userImg ??
+                                'https://imgs.search.brave.com/O18zPZEThw9BlU3mHtFOxeExt5rw1vSHwJgrtg9uNVA/rs:fit:860:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzAxLzI0LzY1LzY5/LzM2MF9GXzEyNDY1/Njk2OV94M3k4WVZ6/dnJxRlp5djNZTFdO/bzZQSmFDODhTWXhx/TS5qcGc',
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return Image.asset(
+                                  'assets/images/avatar.jpg',
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                );
+                              }
+                            },
+                          )),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -332,23 +261,6 @@ class _WelcomeState extends State<Welcome> {
                 ),
               ],
             ),
-            ElevatedButton(
-                onPressed: () {
-                  Map<dynamic, dynamic> jsonData = {
-                    'id': 1,
-                    'name': 'Mobile user',
-                    'place': "Madina",
-                    'lat': _currentPosition!.latitude,
-                    'lng': _currentPosition!.longitude,
-                    'spd': _currentPosition!.speed,
-                    'hdg': _currentPosition!.heading
-                  };
-
-                  String jsonString = json.encode(jsonData);
-
-                  socket!.emit('testLocation', jsonString);
-                },
-                child: const Text('Send'))
           ],
         ),
       )),

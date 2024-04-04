@@ -1,8 +1,12 @@
+import 'dart:convert';
+
+import 'package:eyetruck_driver/constants/utils.dart';
 import 'package:eyetruck_driver/constants/widgets/button.dart';
 import 'package:eyetruck_driver/screens/auth/signup_personal.dart';
 import 'package:eyetruck_driver/screens/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -36,58 +40,79 @@ class _LoginState extends State<Login> {
       isLoginLoading = true;
     });
 
-    Future.delayed(const Duration(seconds: 3), () async {
-      try {
-        if (email == 'admin' && password == 'pass') {
-          debugPrint(email);
-          debugPrint(password);
+    // var res = await http.post(
+    //   Uri.parse("$apiUrlV2/v2/login/driver"),
+    //   body: jsonEncode({'email': email, 'password': password}),
+    //   headers: {'Content-Type': 'application/json'},
+    // );
 
-          await prefs.setString('token', 'user token');
-          await prefs.setString('username', "Admin");
-          await prefs.setBool('verified', true);
+    // if (res.statusCode == 200) {
+    //   var data = res;
+    //   var response = jsonDecode(data.body);
+    //   debugPrint(response);
+    // } else {
+    //   debugPrint("Login failed");
+    // }
 
-          setState(() {
-            isLoginLoading = false;
-          });
+    try {
+      var res = await http.post(
+        Uri.parse("$apiUrlV2/v2/login/driver"),
+        body: jsonEncode({'email': email, 'password': password}),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Center(
-                child: Text("Login Successful"),
-              ),
-              width: MediaQuery.of(context).size.width * 0.9,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+      debugPrint(res.body);
 
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Home(),
-            ),
-            (route) => false,
-          );
-        } else {
-          setState(() {
-            isLoginLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Center(
-                child: Text("Login failed. Try again later"),
-              ),
-              width: MediaQuery.of(context).size.width * 0.9,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      } catch (e) {
-        setState(() {
-          isLoginLoading = false;
-        });
-        return false;
-      }
-    });
+      var data = jsonDecode(res.body);
+
+      debugPrint(data['payload']['token']);
+
+      var details = data['payload']['details'];
+
+      await prefs.setString('token', data['payload']['token']);
+      await prefs.setString('username', details['first_name']);
+      await prefs.setBool('verified', details['verified']);
+      await prefs.setString('uid', details['_id']);
+      await prefs.setString('uimg', details['imgUrl']);
+
+      setState(() {
+        isLoginLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Center(
+            child: Text("Login Successful"),
+          ),
+          width: MediaQuery.of(context).size.width * 0.9,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(),
+        ),
+        (route) => false,
+      );
+    } catch (e) {
+      setState(() {
+        isLoginLoading = false;
+      });
+      var error = jsonEncode(e);
+      debugPrint(error);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Center(
+            child: Text("Login failed. Try again later"),
+          ),
+          width: MediaQuery.of(context).size.width * 0.9,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
