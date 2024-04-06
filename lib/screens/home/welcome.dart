@@ -335,8 +335,8 @@ class _WelcomeState extends State<Welcome> {
                                 color: Color.fromARGB(255, 206, 206, 206),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(25))),
-                            child: const Icon(Icons.notifications,
-                                color: Colors.blue),
+                            child: const Icon(Icons.notifications_outlined,
+                                size: 30, color: Colors.blue),
                           ),
                           TextButton(
                             onPressed: () {

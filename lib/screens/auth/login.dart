@@ -40,20 +40,6 @@ class _LoginState extends State<Login> {
       isLoginLoading = true;
     });
 
-    // var res = await http.post(
-    //   Uri.parse("$apiUrlV2/v2/login/driver"),
-    //   body: jsonEncode({'email': email, 'password': password}),
-    //   headers: {'Content-Type': 'application/json'},
-    // );
-
-    // if (res.statusCode == 200) {
-    //   var data = res;
-    //   var response = jsonDecode(data.body);
-    //   debugPrint(response);
-    // } else {
-    //   debugPrint("Login failed");
-    // }
-
     try {
       var res = await http.post(
         Uri.parse("$apiUrlV2/v2/login/driver"),
@@ -71,6 +57,9 @@ class _LoginState extends State<Login> {
 
       await prefs.setString('token', data['payload']['token']);
       await prefs.setString('username', details['first_name']);
+      await prefs.setString('email', details['email']);
+      // await prefs.setString('phone', details['phone']);
+
       await prefs.setBool('verified', details['verified']);
       await prefs.setString('uid', details['_id']);
       await prefs.setString('uimg', details['imgUrl']);
