@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
+import 'package:eyetruck_driver/screens/home/notifications.dart';
+import 'package:eyetruck_driver/screens/home/trips.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
@@ -139,7 +141,7 @@ class _WelcomeState extends State<Welcome> {
       body: SingleChildScrollView(
           child: Padding(
         padding:
-            const EdgeInsets.only(left: 20, right: 20, top: 50, bottom: 10),
+            const EdgeInsets.only(left: 10, right: 10, top: 50, bottom: 10),
         child: Column(
           children: [
             Row(
@@ -147,7 +149,7 @@ class _WelcomeState extends State<Welcome> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: const BoxDecoration(
-                      color: Color.fromARGB(255, 223, 222, 222),
+                      color: Color.fromARGB(255, 236, 236, 236),
                       borderRadius:
                           BorderRadius.all(Radius.elliptical(20, 20))),
                   child: Column(
@@ -194,6 +196,9 @@ class _WelcomeState extends State<Welcome> {
                                     ),
                               Row(
                                 children: [
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
                                   isVerified == true
                                       ? const Icon(
                                           Icons.verified,
@@ -205,9 +210,6 @@ class _WelcomeState extends State<Welcome> {
                                           color: Color.fromARGB(
                                               255, 160, 160, 160),
                                         ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
                                   isVerified == true
                                       ? const Text(
                                           'Verified',
@@ -225,9 +227,11 @@ class _WelcomeState extends State<Welcome> {
                         ],
                       ),
                       const SizedBox(
-                        height: 10,
+                        height: 30,
                       ),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Container(
                             width: 50,
@@ -237,17 +241,21 @@ class _WelcomeState extends State<Welcome> {
                                 color: Color.fromARGB(255, 206, 206, 206),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(25))),
-                            child: const Icon(
-                              Icons.send_rounded,
-                              color: Colors.blue,
+                            child: Image.asset(
+                              'assets/images/tabler_location.png',
+                              width: 50,
+                              height: 50,
                             ),
                           ),
                           Column(
                             children: [
+                              const SizedBox(
+                                width: 10,
+                              ),
                               const Text(
                                 'Your location',
                                 style: TextStyle(
-                                    fontWeight: FontWeight.w600, fontSize: 16),
+                                    fontWeight: FontWeight.w600, fontSize: 14),
                               ),
                               _currentPlace != null
                                   ? Text('$_currentPlace')
@@ -259,8 +267,112 @@ class _WelcomeState extends State<Welcome> {
                     ],
                   ),
                 ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 236, 236, 236),
+                          borderRadius: BorderRadius.all(Radius.circular(25))),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 50,
+                            padding: const EdgeInsets.all(10),
+                            decoration: const BoxDecoration(
+                                color: Color.fromARGB(255, 206, 206, 206),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25))),
+                            child: Image.asset(
+                              "assets/images/bi_truck.png",
+                              width: 50,
+                              height: 50,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              //TO:DO
+                              //navigate to my trips screen
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const MyTrips()));
+                            },
+                            child: const Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'My trips',
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Text('Check your trips')
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 236, 236, 236),
+                          borderRadius: BorderRadius.all(Radius.circular(25))),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 50,
+                            padding: const EdgeInsets.all(10),
+                            decoration: const BoxDecoration(
+                                color: Color.fromARGB(255, 206, 206, 206),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25))),
+                            child: const Icon(Icons.notifications,
+                                color: Colors.blue),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              //TO:DO
+                              //navigate to my trips screen
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const Notifications()));
+                            },
+                            child: const Text(
+                              'Notifications',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                )
               ],
             ),
+            const SizedBox(
+              height: 30,
+            ),
+            Center(
+              child: Image.asset('assets/images/empty_box.png'),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Text(
+              "Your completed trips will show here.",
+              textAlign: TextAlign.center,
+            )
           ],
         ),
       )),
