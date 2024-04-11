@@ -146,8 +146,9 @@ class _WelcomeState extends State<Welcome> {
           children: [
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
+                Expanded(
+                    child: Container(
+                  padding: const EdgeInsets.all(5),
                   decoration: const BoxDecoration(
                       color: Color.fromARGB(255, 236, 236, 236),
                       borderRadius:
@@ -182,7 +183,7 @@ class _WelcomeState extends State<Welcome> {
                             children: [
                               userName != null
                                   ? Text(
-                                      'Hi $userName',
+                                      '$userName',
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 16),
@@ -266,14 +267,15 @@ class _WelcomeState extends State<Welcome> {
                       )
                     ],
                   ),
-                ),
+                )),
                 const SizedBox(
                   width: 5,
                 ),
-                Column(
+                Expanded(
+                    child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(5),
                       decoration: const BoxDecoration(
                           color: Color.fromARGB(255, 236, 236, 236),
                           borderRadius: BorderRadius.all(Radius.circular(25))),
@@ -308,9 +310,14 @@ class _WelcomeState extends State<Welcome> {
                               children: [
                                 Text(
                                   'My trips',
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16),
                                 ),
-                                Text('Check your trips')
+                                Text(
+                                  'Check your trips',
+                                  style: TextStyle(fontSize: 10),
+                                )
                               ],
                             ),
                           )
@@ -350,14 +357,14 @@ class _WelcomeState extends State<Welcome> {
                             },
                             child: const Text(
                               'Notifications',
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: 14),
                             ),
                           )
                         ],
                       ),
                     )
                   ],
-                )
+                ))
               ],
             ),
             const SizedBox(

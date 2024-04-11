@@ -26,24 +26,27 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
   bool submitting = false;
 
   //personal
-  late String firstName = '';
-  late String lastName = '';
-  late String email = '';
-  TextEditingController phone = TextEditingController();
-  late String pwd = '';
-  late String pwdConfirm = '';
+  final firstName = TextEditingController();
+  final lastName = TextEditingController();
+  final email = TextEditingController();
+  final phone = TextEditingController();
+  final pwd = TextEditingController();
+  final pwdConfirm = TextEditingController();
+
+  bool showPass = true;
+  bool showConfirm = true;
 
   PhoneNumber number = PhoneNumber(isoCode: 'GH');
 
   //documents
-  late String lisence = '';
-  TextEditingController issuedAt = TextEditingController();
-  TextEditingController expiredAt = TextEditingController();
+  final lisence = TextEditingController();
+  final issuedAt = TextEditingController();
+  final expiredAt = TextEditingController();
 
   File? imgFront;
   File? imgBack;
 
-  TextEditingController lisenceDate = TextEditingController();
+  //TextEditingController lisenceDate = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -103,11 +106,12 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                               Column(
                                 children: [
                                   TextFormField(
+                                    controller: firstName,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your first name';
                                       }
-                                      firstName = value;
+
                                       return null;
                                     },
                                     decoration: const InputDecoration(
@@ -116,11 +120,12 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                         labelStyle: TextStyle(fontSize: 14)),
                                   ),
                                   TextFormField(
+                                    controller: lastName,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your other names';
                                       }
-                                      lastName = value;
+
                                       return null;
                                     },
                                     decoration: const InputDecoration(
@@ -129,12 +134,13 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                         labelText: 'Last name'),
                                   ),
                                   TextFormField(
+                                    controller: email,
                                     keyboardType: TextInputType.emailAddress,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your email';
                                       }
-                                      email = value;
+
                                       return null;
                                     },
                                     decoration: const InputDecoration(
@@ -156,31 +162,55 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                     onInputChanged: (e) {},
                                   ),
                                   TextFormField(
-                                    obscureText: true,
+                                    controller: pwd,
+                                    obscureText: showPass,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your password';
                                       }
-                                      pwd = value;
+
                                       return null;
                                     },
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                         hintText: 'Enter your password',
-                                        labelStyle: TextStyle(fontSize: 14),
+                                        labelStyle:
+                                            const TextStyle(fontSize: 14),
+                                        suffixIcon: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                showPass = !showPass;
+                                              });
+                                            },
+                                            icon: Icon(showPass
+                                                ? Icons.visibility
+                                                : Icons.visibility_off)),
                                         labelText: 'Password'),
                                   ),
                                   TextFormField(
-                                    obscureText: true,
+                                    controller: pwdConfirm,
+                                    obscureText: showConfirm,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your password';
+                                      } else if (pwd.text != pwdConfirm.text) {
+                                        return "Passwords do not match";
                                       }
-                                      pwdConfirm = value;
+
                                       return null;
                                     },
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                         hintText: 'Enter your password',
-                                        labelStyle: TextStyle(fontSize: 14),
+                                        labelStyle:
+                                            const TextStyle(fontSize: 14),
+                                        suffixIcon: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                showConfirm = !showConfirm;
+                                              });
+                                            },
+                                            icon: Icon(showConfirm
+                                                ? Icons.visibility
+                                                : Icons.visibility_off)),
                                         labelText: 'Confirm password'),
                                   ),
                                   Container(
@@ -201,11 +231,12 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     TextFormField(
+                                      controller: lisence,
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Please enter your license number';
                                         }
-                                        lisence = value;
+
                                         return null;
                                       },
                                       decoration: const InputDecoration(
@@ -334,91 +365,99 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                       margin: const EdgeInsets.only(
                                           top: 50, bottom: 30),
                                       child: submitting == true
-                                          ? const CircularProgressIndicator()
+                                          ? const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            )
                                           : primaryButton(
                                               text: "Submit",
                                               onPressed: () async {
                                                 var payload = jsonEncode({
-                                                  'email': email,
-                                                  'password': pwdConfirm,
-                                                  'phone': phone,
-                                                  'first_name': firstName,
-                                                  'last_name': lastName,
-                                                  'license_id': lisence,
-                                                  'expired_at': expiredAt,
-                                                  'issued_at': issuedAt
+                                                  'email': email.text,
+                                                  'password': pwdConfirm.text,
+                                                  'phone': phone.text,
+                                                  'first_name': firstName.text,
+                                                  'last_name': lastName.text,
+                                                  'license_id': lisence.text,
+                                                  'expired_at': expiredAt.text,
+                                                  'issued_at': issuedAt.text
                                                 });
 
                                                 debugPrint(payload);
                                                 if (_formKey.currentState!
                                                     .validate()) {
-                                                  if (pwdConfirm == pwd) {
-                                                    if (imgBack != null &&
-                                                        imgFront != null) {
-                                                      // String userId = "uid1001";
+                                                  if (imgBack != null &&
+                                                      imgFront != null) {
+                                                    // String userId = "uid1001";
 
-                                                      // dynamic data =
-                                                      //     await uploadDocs(
-                                                      //         imgFront, userId);
+                                                    // debugPrint(data);
+                                                    setState(() {
+                                                      submitting = true;
+                                                    });
 
-                                                      // debugPrint(data);
-                                                      setState(() {
-                                                        submitting = true;
-                                                      });
+                                                    try {
+                                                      SharedPreferences prefs =
+                                                          await SharedPreferences
+                                                              .getInstance();
 
-                                                      try {
-                                                        SharedPreferences
-                                                            prefs =
-                                                            await SharedPreferences
-                                                                .getInstance();
+                                                      var res = await http.post(
+                                                        Uri.parse(
+                                                            "$apiUrlV2/v2/register/driver"),
+                                                        body: payload,
+                                                        headers: {
+                                                          'Content-Type':
+                                                              'application/json'
+                                                        },
+                                                      );
 
-                                                        var res =
-                                                            await http.post(
-                                                          Uri.parse(
-                                                              "$apiUrlV2/v2/register/driver"),
-                                                          body: payload,
-                                                          headers: {
-                                                            'Content-Type':
-                                                                'application/json'
-                                                          },
-                                                        );
+                                                      debugPrint(res.body);
 
-                                                        debugPrint(res.body);
+                                                      var data =
+                                                          jsonDecode(res.body);
 
-                                                        // var data = jsonDecode(
-                                                        //     res.body);
+                                                      // debugPrint(
+                                                      //     data['payload']
+                                                      //         ['token']);
 
-                                                        // debugPrint(
-                                                        //     data['payload']
-                                                        //         ['token']);
+                                                      if (data['status'] ==
+                                                          200) {
+                                                        var details =
+                                                            data['payload']
+                                                                ['details'];
 
-                                                        // var details =
-                                                        //     data['payload']
-                                                        //         ['details'];
+                                                        await prefs.setString(
+                                                            'token',
+                                                            data['payload']
+                                                                ['token']);
+                                                        await prefs.setString(
+                                                            'username',
+                                                            details[
+                                                                'first_name']);
+                                                        await prefs.setString(
+                                                            'email',
+                                                            details['email']);
+                                                        await prefs.setString(
+                                                            'phone',
+                                                            details['phone']);
 
-                                                        // await prefs.setString(
-                                                        //     'token',
-                                                        //     data['payload']
-                                                        //         ['token']);
-                                                        // await prefs.setString(
-                                                        //     'username',
-                                                        //     details[
-                                                        //         'first_name']);
-                                                        // await prefs.setString(
-                                                        //     'email',
-                                                        //     details['email']);
-                                                        // await prefs.setString('phone', details['phone']);
+                                                        await prefs.setBool(
+                                                            'verified',
+                                                            details[
+                                                                'verified']);
+                                                        await prefs.setString(
+                                                            'uid',
+                                                            details['_id']);
+                                                        await prefs.setString(
+                                                            'uimg',
+                                                            details['imgUrl']);
 
-                                                        // await prefs.setBool(
-                                                        //     'verified',
-                                                        //     details[
-                                                        //         'verified']);
-                                                        // await prefs.setString(
-                                                        //     'uid',
-                                                        //     details['_id']);
-                                                        // await prefs.setString(
-                                                        //     'uimg',
-                                                        //     details['imgUrl']);
+                                                        await uploadDocs(
+                                                            imgFront,
+                                                            details['_id']);
+
+                                                        await uploadDocs(
+                                                            imgBack,
+                                                            details['_id']);
 
                                                         setState(() {
                                                           submitting = false;
@@ -431,7 +470,7 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                                             content:
                                                                 const Center(
                                                               child: Text(
-                                                                  "Login Successful"),
+                                                                  "Registration Successful"),
                                                             ),
                                                             width: MediaQuery.of(
                                                                         context)
@@ -444,28 +483,27 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                                           ),
                                                         );
 
-                                                        // Navigator
-                                                        //     .pushAndRemoveUntil(
-                                                        //   context,
-                                                        //   MaterialPageRoute(
-                                                        //     builder:
-                                                        //         (context) =>
-                                                        //             Home(),
-                                                        //   ),
-                                                        //   (route) => false,
-                                                        // );
-                                                      } catch (e) {
-                                                        var error =
-                                                            jsonEncode(e);
-                                                        debugPrint(error);
-
+                                                        Navigator
+                                                            .pushAndRemoveUntil(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    Home(),
+                                                          ),
+                                                          (route) => false,
+                                                        );
+                                                      } else {
+                                                        //show error
+                                                        var message =
+                                                            data['message'];
                                                         ScaffoldMessenger.of(
                                                                 context)
                                                             .showSnackBar(
                                                           SnackBar(
                                                             content: Center(
                                                               child: Text(
-                                                                  "Registration failed. Try again later. $e"),
+                                                                  "$message"),
                                                             ),
                                                             width: MediaQuery.of(
                                                                         context)
@@ -477,19 +515,23 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                                                     .floating,
                                                           ),
                                                         );
-
-                                                        setState(() {
-                                                          submitting = false;
-                                                        });
                                                       }
-                                                    } else {
+                                                    } catch (e) {
+                                                      // var error = jsonEncode(e);
+
+                                                      // Map<String, dynamic>
+                                                      //     errorData =
+                                                      //     jsonDecode(error);
+
+                                                      // debugPrint(
+                                                      //     errorData["message"]);
+
                                                       ScaffoldMessenger.of(
                                                               context)
                                                           .showSnackBar(
                                                         SnackBar(
-                                                          content: const Center(
-                                                            child: Text(
-                                                                "Please select front and back images of your license"),
+                                                          content: Center(
+                                                            child: Text("$e"),
                                                           ),
                                                           width: MediaQuery.of(
                                                                       context)
@@ -501,6 +543,10 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                                                   .floating,
                                                         ),
                                                       );
+                                                    } finally {
+                                                      setState(() {
+                                                        submitting = false;
+                                                      });
                                                     }
                                                   } else {
                                                     ScaffoldMessenger.of(
@@ -509,7 +555,7 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                                       SnackBar(
                                                         content: const Center(
                                                           child: Text(
-                                                              "Passwords do not match"),
+                                                              "Please select front and back images of your license"),
                                                         ),
                                                         width: MediaQuery.of(
                                                                     context)

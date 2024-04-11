@@ -58,7 +58,7 @@ class _LoginState extends State<Login> {
       await prefs.setString('token', data['payload']['token']);
       await prefs.setString('username', details['first_name']);
       await prefs.setString('email', details['email']);
-      // await prefs.setString('phone', details['phone']);
+      await prefs.setString('phone', details['phone']);
 
       await prefs.setBool('verified', details['verified']);
       await prefs.setString('uid', details['_id']);
