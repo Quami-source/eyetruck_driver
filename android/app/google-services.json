@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "538899056544",
+    "project_id": "eyetruck-driver",
+    "storage_bucket": "eyetruck-driver.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:538899056544:android:51886dc6b0413fb88e86c5",
+        "android_client_info": {
+          "package_name": "com.example.eyetruck_driver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFud5Kr13xsfzWhB_cPFjCewzhuy--xbw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

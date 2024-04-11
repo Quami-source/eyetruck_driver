@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:label="eyetruck_driver"
+        android:label="Driver"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
