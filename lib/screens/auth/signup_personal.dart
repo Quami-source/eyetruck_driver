@@ -29,7 +29,7 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
   final firstName = TextEditingController();
   final lastName = TextEditingController();
   final email = TextEditingController();
-  final phone = TextEditingController();
+
   final pwd = TextEditingController();
   final pwdConfirm = TextEditingController();
 
@@ -37,7 +37,7 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
   bool showConfirm = true;
 
   PhoneNumber number = PhoneNumber(isoCode: 'GH');
-
+  String? phone = '';
   //documents
   final lisence = TextEditingController();
   final issuedAt = TextEditingController();
@@ -152,14 +152,15 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                     height: 20,
                                   ),
                                   InternationalPhoneNumberInput(
-                                    textFieldController: phone,
                                     hintText: 'Enter your phone number',
                                     initialValue: number,
                                     formatInput: true,
                                     keyboardType:
                                         const TextInputType.numberWithOptions(
                                             signed: true, decimal: true),
-                                    onInputChanged: (e) {},
+                                    onInputChanged: (e) {
+                                      phone = e.phoneNumber;
+                                    },
                                   ),
                                   TextFormField(
                                     controller: pwd,
@@ -375,7 +376,7 @@ class _SignUpPersonalState extends State<SignUpPersonal> {
                                                 var payload = jsonEncode({
                                                   'email': email.text,
                                                   'password': pwdConfirm.text,
-                                                  'phone': phone.text,
+                                                  'phone': phone,
                                                   'first_name': firstName.text,
                                                   'last_name': lastName.text,
                                                   'license_id': lisence.text,

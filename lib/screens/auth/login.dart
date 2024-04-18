@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eyetruck_driver/constants/utils.dart';
 import 'package:eyetruck_driver/constants/widgets/button.dart';
+import 'package:eyetruck_driver/screens/auth/forgot_password.dart';
 import 'package:eyetruck_driver/screens/auth/signup_personal.dart';
 import 'package:eyetruck_driver/screens/home/home.dart';
 import 'package:flutter/material.dart';
@@ -94,8 +95,8 @@ class _LoginState extends State<Login> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Center(
-            child: Text("Login failed. Try again later"),
+          content: Center(
+            child: Text("$e"),
           ),
           width: MediaQuery.of(context).size.width * 0.9,
           behavior: SnackBarBehavior.floating,
@@ -142,10 +143,10 @@ class _LoginState extends State<Login> {
                 ),
                 TextButton(
                     onPressed: () {
-                      const AlertDialog(
-                        content: Text("I was clicked"),
-                        actions: [],
-                      );
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ForgotPassword()));
                     },
                     child: const Text(
                       "Forgot password",

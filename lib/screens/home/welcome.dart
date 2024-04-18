@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Welcome extends StatefulWidget {
@@ -100,7 +101,7 @@ class _WelcomeState extends State<Welcome> {
               });
 
               // Send location data to server
-              _sendLocationData();
+              await _sendLocationData();
             }
           }
         }
@@ -108,24 +109,6 @@ class _WelcomeState extends State<Welcome> {
         debugPrint('Error getting location: $e');
       }
     });
-  }
-
-  void _sendLocationData() {
-    if (_currentPosition != null) {
-      Map<String, dynamic> jsonData = {
-        'id': uid,
-        'name': userName,
-        'place': _currentPlace,
-        'lat': _currentPosition!.latitude,
-        'lng': _currentPosition!.longitude,
-        'spd': _currentPosition!.speed,
-        'hdg': _currentPosition!.heading
-      };
-
-      String jsonString = json.encode(jsonData);
-      debugPrint(jsonString);
-      socket!.emit('testLocation', jsonString);
-    }
   }
 
   @override
@@ -384,5 +367,38 @@ class _WelcomeState extends State<Welcome> {
         ),
       )),
     );
+  }
+
+  Future<void> _sendLocationData() async {
+    if (_currentPosition != null) {
+      try {
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        var currentdeviceid = androidInfo.id;
+
+        var hexdeviceid =
+            utf8.encode(currentdeviceid).map((e) => e.toRadixString(16)).join();
+
+        debugPrint('did: $hexdeviceid');
+
+        Map<String, dynamic> jsonData = {
+          'id': uid,
+          'name': userName,
+          'place': _currentPlace,
+          'deviceId': hexdeviceid,
+          'lat': _currentPosition!.latitude,
+          'lng': _currentPosition!.longitude,
+          'spd': _currentPosition!.speed,
+          'hdg': _currentPosition!.heading
+        };
+
+        String jsonString = json.encode(jsonData);
+        debugPrint(jsonString);
+        socket!.emit('addLocation', jsonString);
+      } catch (error) {
+        var e = jsonEncode(error);
+        debugPrint(e);
+      }
+    }
   }
 }
